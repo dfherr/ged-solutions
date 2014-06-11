@@ -9,3 +9,7 @@ Remember to set TerrainGenerator as startup project.
 ### Solution03
 
 This branch offers a solution for Assignment 03 and can be used as a template for Assignment 04.
+
+## Solution04
+
+not ready yet. branched for later rebasing
