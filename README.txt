@@ -1,0 +1,1 @@
+This github project is meant to give any Game Engine Design students from TUM working solutions for past tasks.
