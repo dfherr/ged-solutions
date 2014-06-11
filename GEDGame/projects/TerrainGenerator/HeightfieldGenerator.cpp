@@ -91,10 +91,10 @@ void HeightfieldGenerator::initialize()
 float HeightfieldGenerator::random(float min, float max)
 {
 	// make sure roughness didn't get too small.
-	if (max < 0.001 || (min < 0 && min > -0.001)) 
+	if (max < 0.001f || (min < 0.0f && min > -0.001f)) 
 	{
-		max = 0.001;
-		min = -0.001;
+		max = 0.001f;
+		min = -0.001f;
 	}
 
 	// generate random numbers as long as the result isn't in the range between min and max.
