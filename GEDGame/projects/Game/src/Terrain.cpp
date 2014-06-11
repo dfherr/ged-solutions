@@ -1,13 +1,16 @@
-#include "Terrain.h"
-
-#include "GameEffect.h"
-//#include "SimpleImage/SimpleImage.h"
 #include <DDSTextureLoader.h>
+
+//#include "SimpleImage/SimpleImage.h"
+#include "Terrain.h"
+#include "GameEffect.h"
 #include "DirectXTex.h"
 
-// You can use this macro to access your height field
+// you can use this macro to access your height field
 #define IDX(X,Y,WIDTH) ((X) + (Y) * (WIDTH))
 
+/*
+* Create the terrain and let everything point to null.
+*/
 Terrain::Terrain(void):
 	indexBuffer(nullptr),
 	vertexBuffer(nullptr),
@@ -17,7 +20,6 @@ Terrain::Terrain(void):
 {
 }
 
-
 Terrain::~Terrain(void)
 {
 }
@@ -26,7 +28,7 @@ HRESULT Terrain::create(ID3D11Device* device)
 {
 	HRESULT hr;
 
-	// In our example, we load a debug texture
+	// in our example, we load a debug texture
     V(DirectX::CreateDDSTextureFromFile(device, L"resources\\debug_green.dds", nullptr, &debugSRV));
 
 	if (hr != S_OK) {
@@ -34,7 +36,7 @@ HRESULT Terrain::create(ID3D11Device* device)
 		return hr;
 	}
 
-	// This buffer contains positions, normals and texture coordinates for one triangle
+	// this buffer contains positions, normals and texture coordinates for one triangle
     float triangle[] = {
         // Vertex 0
            -400.0f, 0.0f, -400.0f,  1.0f, // Position

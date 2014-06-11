@@ -129,11 +129,13 @@ exit 1</Command>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ConfigParser.h" />
     <ClInclude Include="src\debug.h" />
     <ClInclude Include="src\GameEffect.h" />
     <ClInclude Include="src\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ConfigParser.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>

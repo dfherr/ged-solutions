@@ -1,0 +1,6 @@
+echo "Creating new resources..."
+mkdir "$(OutDir)resources"
+"$(OutDir)TerrainGenerator.exe" -r 1024 -o_height "$(OutDir)resources\terrain_height.tiff" -o_color "$(IntDir)terrain_color.tiff" -o_normal "$(IntDir)terrain_normal.tiff"
+"$(OutDir)texconv.exe" -srgbi -f R8G8B8A8_UNORM_SRGB -o "$(OutDir)resources" "$(IntDir)terrain_color.tiff"
+"$(OutDir)texconv.exe" -f BC5_UNORM -o "$(OutDir)resources" "$(IntDir)terrain_normal.tiff"
+"$(OutDir)texconv.exe" -o "$(OutDir)resources" -srgbi -f R8G8B8A8_UNORM_SRGB "..\..\..\..\external\textures\debug_green.jpg"

@@ -9,6 +9,8 @@
 #include "Windows.h"
 #include "stdafx.h"
 
+#include "TextureGenerator.h"
+#include "NormalCalculator.h"
 #include "HeightfieldGenerator.h"
 
 // access a 2D array of width w at position x / y
@@ -44,11 +46,23 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	HeightfieldGenerator *heightGenerator = new HeightfieldGenerator(resolution, 20);
 
+
 	// create vector to store heightfield.
 	std::vector<float> heightVec = heightGenerator->get_vector();
 	
+
+
+	NormalCalculator *nc = new NormalCalculator(resolution, &heightVec[0]);
+	nc->saveImage(output_normal_filename);
+	std::vector<NormalCalculator::Normal>normalVec = nc->get_vector();
+
+	TextureGenerator *tx = new TextureGenerator();
+	tx->generateTexture(resolution,output_color_filename,normalVec,&heightVec[0]);
+
 	heightGenerator->saveDownsized(output_height_filename);
 
+	delete nc;
+	delete tx;
 	delete heightGenerator;
 	
 	return 0;
