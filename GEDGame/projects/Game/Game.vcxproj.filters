@@ -12,19 +12,25 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{f49ffabc-594a-4d16-8a37-724a8a2cd7c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7bb568d2-3ced-41ce-853a-af471206fa14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\debug.h">
-      <Filter>Source</Filter>
+    <ClInclude Include="src\ConfigParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameEffect.h">
-      <Filter>Source</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Terrain.h">
-      <Filter>Source</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +38,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Terrain.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfigParser.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
