@@ -4,6 +4,8 @@ This github project is meant to give any Game Engine Design students from TUM wo
 
 Simply clone and pull the branches you need.
 
+You still need some files like meshes or converter tools from external. This project expects the git project directory and the external directory have the same parent directory.
+
 As all compiled stuff isn't commited you should perform a git clean ignored files when switching branches.
 
 ```
