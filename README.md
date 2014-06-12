@@ -10,6 +10,6 @@ Remember to set TerrainGenerator as startup project.
 
 This branch offers a solution for Assignment 03 and can be used as a template for Assignment 04.
 
-## Solution04
+### Solution04
 
 This branch offers a solution for Assignment 04 and can be used as a template for Assignment 05.
