@@ -126,9 +126,6 @@ exit 1</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\ConfigParser.h" />
     <ClInclude Include="src\debug.h" />
     <ClInclude Include="src\GameEffect.h" />

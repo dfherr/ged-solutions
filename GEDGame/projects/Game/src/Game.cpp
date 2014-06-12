@@ -57,8 +57,6 @@ CDXUTTextHelper*                        g_txtHelper = NULL;
 CDXUTDialog                             g_hud;                  // dialog for standard controls
 CDXUTDialog                             g_sampleUI;             // dialog for sample specific controls
 
-ID3D11InputLayout*                      g_terrainVertexLayout; // Describes the structure of the vertex buffer to the input assembler stage
-
 
 bool                                    g_terrainSpinning = true;
 XMMATRIX                                g_terrainWorld; // object- to world-space transformation
@@ -158,7 +156,7 @@ int _tmain(int argc, _TCHAR* argv[])
     InitApp();
     DXUTInit( true, true, NULL ); // Parse the command line, show msgboxes on error, no extra command line params
     DXUTSetCursorSettings( true, true );
-    DXUTCreateWindow( L"TODO: Insert Title Here" ); // You may change the title
+    DXUTCreateWindow( L"Awesome Game" ); // You may change the title
 
     DXUTCreateDevice( D3D_FEATURE_LEVEL_10_0, true, 1280, 720 );
 
@@ -182,7 +180,7 @@ void InitApp()
 	size_t size;
 	wcstombs_s(&size, pathA, path, MAX_PATH);
 
-	// TODO: Parse your config file specified by "pathA" here
+	// Parse config file specified by "pathA" here
 	g_configParser.load(std::string(pathA));
 
     // Intialize the user interface
@@ -291,13 +289,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice,
 	// Create the input layout
     D3DX11_PASS_DESC pd;
 	V_RETURN(g_gameEffect.pass0->GetDesc(&pd));
-	V_RETURN( pd3dDevice->CreateInputLayout( layout, numElements, pd.pIAInputSignature,
-            pd.IAInputSignatureSize, &g_terrainVertexLayout ) );
 
 	// Create the terrain
-
-	// TODO: You might pass a ConfigParser object to the create function.
-	//       Therefore you can adjust the TerrainClass accordingly
 	V_RETURN(g_terrain.create(pd3dDevice));
 
     return S_OK;
@@ -314,8 +307,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     g_dialogResourceManager.OnD3D11DestroyDevice();
     g_settingsDlg.OnD3D11DestroyDevice();
     DXUTGetGlobalResourceCache().OnDestroyDevice();
-    SAFE_RELEASE( g_terrainVertexLayout );
-    
+
 	// Destroy the terrain
 	g_terrain.destroy();
 
@@ -488,6 +480,14 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
     
 	// Start with identity matrix
     g_terrainWorld = XMMatrixIdentity();
+
+	// load widht/depth/height config parameters
+	float width = g_configParser.getTerrainWidth();
+	float height = g_configParser.getTerrainHeight();
+	float depth = g_configParser.getTerrainDepth();
+	// scale with terrain according to config, assignment 5
+	XMMATRIX terrainScaling = XMMatrixScaling(width, height, depth);
+	g_terrainWorld = XMMatrixMultiply(g_terrainWorld, terrainScaling);
     
     if( g_terrainSpinning ) 
     {
@@ -541,13 +541,13 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     XMMATRIX const view = g_camera.GetViewMatrix(); // http://msdn.microsoft.com/en-us/library/windows/desktop/bb206342%28v=vs.85%29.aspx
     XMMATRIX const proj = g_camera.GetProjMatrix(); // http://msdn.microsoft.com/en-us/library/windows/desktop/bb147302%28v=vs.85%29.aspx
     XMMATRIX worldViewProj = g_terrainWorld * view * proj;
+	XMMATRIX worldNormalProj = XMMatrixTranspose(XMMatrixInverse(nullptr, g_terrainWorld));
 	V(g_gameEffect.worldEV->SetMatrix( ( float* )&g_terrainWorld ));
 	V(g_gameEffect.worldViewProjectionEV->SetMatrix( ( float* )&worldViewProj ));
 	V(g_gameEffect.lightDirEV->SetFloatVector( ( float* )&g_lightDir ));
-
+	V(g_gameEffect.worldNormalMatrix->SetMatrix( (float*)&worldNormalProj ));
     // Set input layout
-    pd3dImmediateContext->IASetInputLayout( g_terrainVertexLayout );
-
+	pd3dImmediateContext->IASetInputLayout( nullptr ); // changed for assignment 5, was the vertexlayout before
 	g_terrain.render(pd3dImmediateContext, g_gameEffect.pass0);
     
     DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );

@@ -3,6 +3,8 @@
 //--------------------------------------------------------------------------------------
 
 Texture2D   g_Diffuse; // Material albedo for diffuse lighting
+Texture2D	g_NormalMap; // added, see assignment 5
+Buffer<float> g_HeightMap; // added, see assignment 5
 
 
 //--------------------------------------------------------------------------------------
@@ -12,12 +14,14 @@ Texture2D   g_Diffuse; // Material albedo for diffuse lighting
 cbuffer cbConstant
 {
     float4  g_LightDir; // Object space
+	int		g_TerrainRes; // added, see assignment 5
 };
 
 cbuffer cbChangesEveryFrame
 {
     matrix  g_World;
     matrix  g_WorldViewProjection;
+	matrix	g_WorldNormals; // added, see assignment 5
     float   g_Time;
 };
 
@@ -43,6 +47,12 @@ struct PosTexLi
     float2 Tex : TEXCOORD;
     float   Li : LIGHT_INTENSITY;
 	float3 normal: NORMAL;
+};
+
+struct PosTex // added, see assignment 5
+{
+	float4 Pos : SV_POSITION;
+	float2 Tex : TEXCOORD;
 };
 
 //--------------------------------------------------------------------------------------
@@ -108,7 +118,7 @@ BlendState NoBlending
 //--------------------------------------------------------------------------------------
 // Shaders
 //--------------------------------------------------------------------------------------
-
+/* No longer used render calls
 PosTexLi SimpleVS(PosNorTex Input) {
     PosTexLi output = (PosTexLi) 0;
 
@@ -132,6 +142,35 @@ float4 SimplePS(PosTexLi Input) : SV_Target0 {
     return float4(matDiffuse.rgb * Input.Li, 1);
 	//return float4(Input.normal, 1);
 }
+*/
+PosTex TerrainVS(uint VertexID : SV_VertexID ){
+	PosTex output = (PosTex) 0;
+	float x = (VertexID % g_TerrainRes) / (float)g_TerrainRes; // matrix column
+	float y = g_HeightMap[VertexID];
+	float z = (VertexID / g_TerrainRes) / (float)g_TerrainRes;	// matrix row
+
+	// -0.5f to center at [0,0,0]
+	output.Pos = float4(x-0.5f,y, z-0.5f, 1.0f);
+	output.Pos = mul(output.Pos, g_WorldViewProjection);
+	output.Tex.x = x;
+	output.Tex.y = z;
+
+	return output;
+}
+
+float4 TerrainPS(PosTex input) : SV_Target0 {
+	float3 n;
+	n.xz = g_NormalMap.Sample(samAnisotropic, input.Tex).xy;
+	// map back to range -1, 1
+	n.x = (n.x * 2.0f) - 1.0f;
+	n.z = (n.z * 2.0f) - 1.0f;
+	n.y = sqrt(1.0 - (n.x*n.x) - (n.z * n.z));
+	n = normalize(mul(float4(n,0), g_WorldNormals).xyz);
+
+	float3 matDiffuse = g_Diffuse.Sample(samLinearClamp, input.Tex).xyz;
+	float i = saturate(dot(n, normalize(g_LightDir.xyz)));
+	return float4(matDiffuse * i, 1);
+}
 
 
 //--------------------------------------------------------------------------------------
@@ -141,9 +180,9 @@ technique11 Render
 {
     pass P0
     {
-        SetVertexShader(CompileShader(vs_4_0, SimpleVS()));
+        SetVertexShader(CompileShader(vs_4_0, TerrainVS()));
         SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_4_0, SimplePS()));
+        SetPixelShader(CompileShader(ps_4_0, TerrainPS()));
         
         SetRasterizerState(rsCullNone);
         SetDepthStencilState(EnableDepth, 0);

@@ -30,6 +30,10 @@ struct GameEffect
 	ID3DX11EffectMatrixVariable*            worldViewProjectionEV; // WorldViewProjection matrix effect variable
 	ID3DX11EffectShaderResourceVariable*    diffuseEV; // Effect variable for the diffuse color texture
 	ID3DX11EffectVectorVariable*            lightDirEV; // Light direction in object space
+	ID3DX11EffectShaderResourceVariable*	heightmap; // shader variable for heightmap, see assignment 5
+	ID3DX11EffectShaderResourceVariable*	normalmap; // shader variable for normalmap, see assignment 5
+	ID3DX11EffectScalarVariable*			resolution; // shader variable for resolution; see assignment 5
+	ID3DX11EffectMatrixVariable*			worldNormalMatrix; // shader variable for World Normal Matrix; see assignment 5
 
 	GameEffect() { ZeroMemory(this, sizeof(*this)); }		// WARNING: This will set ALL members to 0!
 
@@ -62,6 +66,12 @@ struct GameEffect
 		SAFE_GET_MATRIX(effect, "g_World", worldEV);
 		SAFE_GET_MATRIX(effect, "g_WorldViewProjection", worldViewProjectionEV);   
 		SAFE_GET_VECTOR(effect, "g_LightDir", lightDirEV);  
+
+		// Bind assignment 5 shader variables
+		SAFE_GET_RESOURCE(effect, "g_HeightMap", heightmap);
+		SAFE_GET_RESOURCE(effect, "g_NormalMap", normalmap);
+		SAFE_GET_MATRIX(effect, "g_WorldNormals", worldNormalMatrix);
+		SAFE_GET_SCALAR(effect, "g_TerrainRes", resolution);
 
 		return S_OK;
 	}

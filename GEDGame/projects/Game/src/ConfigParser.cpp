@@ -36,22 +36,21 @@ void ConfigParser::load(std::string path)
 			}  else if (word.compare("TerrainWidth") == 0)
 			{
 				*fs >> word;
-				ConfigParser::terrainWidth = (float)atof(word.c_str());
+				ConfigParser::terrainWidth = atof(word.c_str());
 			} else if (word.compare("TerrainDepth") == 0)
 			{
 				*fs >> word;
-				ConfigParser::terrainDepth = (float)atof(word.c_str());
+				ConfigParser::terrainDepth = atof(word.c_str());
 			} else if (word.compare("TerrainHeight") == 0)
 			{
 				*fs >> word;
-				ConfigParser::terrainHeight = (float)atof(word.c_str());
+				ConfigParser::terrainHeight = atof(word.c_str());
 			} else
 			{
 				// the word isn't correct. throw a error message and go to the next one.
 				std::cout << "error: \"" << word << "\"" << std::endl;
 			}
 		}
-
 	}
 	else
 	{
