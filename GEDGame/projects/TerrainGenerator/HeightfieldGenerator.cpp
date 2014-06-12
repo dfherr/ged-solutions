@@ -1,7 +1,7 @@
 #include "HeightfieldGenerator.h"
 #include <iostream>
 
-HeightfieldGenerator::HeightfieldGenerator(int res, int smoothness) : generator(3), distribution(0.0f, 1.0f)
+HeightfieldGenerator::HeightfieldGenerator(int res, int smoothness) : generator(time(NULL)), distribution(0.0f, 1.0f)
 {
 	// set the given parameter to the object attribute.
 	this->res = res;
