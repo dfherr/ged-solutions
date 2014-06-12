@@ -24,6 +24,7 @@
 
 #include "Terrain.h"
 #include "GameEffect.h"
+#include "ConfigParser.h"
 
 #include "debug.h"
 
@@ -68,6 +69,8 @@ XMVECTOR                                g_lightDir;
 Terrain									g_terrain;
 
 GameEffect								g_gameEffect; // CPU part of Shader
+ConfigParser							g_configParser; // global config parser
+
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -180,6 +183,7 @@ void InitApp()
 	wcstombs_s(&size, pathA, path, MAX_PATH);
 
 	// TODO: Parse your config file specified by "pathA" here
+	g_configParser.load(std::string(pathA));
 
     // Intialize the user interface
 

@@ -12,4 +12,4 @@ This branch offers a solution for Assignment 03 and can be used as a template fo
 
 ## Solution04
 
-not ready yet. branched for later rebasing
+This branch offers a solution for Assignment 04 and can be used as a template for Assignment 05.
