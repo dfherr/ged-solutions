@@ -13,11 +13,11 @@ This branch offers a solution for Assignment 03 and can be used as a template fo
 Use TerrainViewer tool in order heightmap, colormap, normalmap to view your heightmap.
 You need to use the 3 .tiff files though only Heightmap is in resources folder. You can find the other in the Debug/Release folder of the RessourceGenerator.
 
-## Solution04
+### Solution04
 
 This branch offers a solution for Assignment 04 and can be used as a template for Assignment 05.
 
-## Solution05
+### Solution05
 
 This branch offers a solution for Assignment 05 and can be used as a template for Assignment 06.
 
