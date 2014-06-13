@@ -37,3 +37,8 @@ This branch offers a solution for Assignment 05 and can be used as a template fo
 
 Simply run in debug or release mode to see your rendered terrain :). 
 Some little black fields are bugs due to high slope in normal calculation and probably float inaccuracies.
+
+### Solution06
+This branch offers a solution for Assignment 06 and can be used as a template for Assignment 07.
+
+The nmake line can be found in nmake_text.txt for better readability. You still have to set it in VisualStudio though.
