@@ -2,9 +2,11 @@
 // Shader resources
 //--------------------------------------------------------------------------------------
 
-Texture2D   g_Diffuse; // Material albedo for diffuse lighting
-Texture2D	g_NormalMap; // added, see assignment 5
-Buffer<float> g_HeightMap; // added, see assignment 5
+Texture2D   g_Diffuse;		// Material albedo for diffuse lighting
+Texture2D	g_NormalMap;	// added, see assignment 5
+Buffer<float> g_HeightMap;	// added, see assignment 5
+Texture2D	g_Specular;	// added assignment 06
+Texture2D	g_Glow;		// added assignment 06
 
 
 //--------------------------------------------------------------------------------------
@@ -23,6 +25,7 @@ cbuffer cbChangesEveryFrame
     matrix  g_WorldViewProjection;
 	matrix	g_WorldNormals; // added, see assignment 5
     float   g_Time;
+	float4	g_CameraPosWorld; // added assignment 6
 };
 
 cbuffer cbUserChanges
@@ -53,6 +56,23 @@ struct PosTex // added, see assignment 5
 {
 	float4 Pos : SV_POSITION;
 	float2 Tex : TEXCOORD;
+};
+
+ // added assignment 6
+struct T3dVertexVSIn { 
+	float3 Pos : POSITION; //Position in object space 
+	float2 Tex : TEXCOORD; //Texture coordinate 
+	float3 Nor : NORMAL; //Normal in object space 
+	float3 Tan : TANGENT; //Tangent in object space (not used in Ass. 5) 
+}; 
+
+ // added assignment 6
+struct T3dVertexPSIn { 
+	float4 Pos : SV_POSITION; //Position in clip space 
+	float2 Tex : TEXCOORD; //Texture coordinate 
+	float3 PosWorld : POSITION; //Position in world space 
+	float3 NorWorld : NORMAL; //Normal in world space 
+	float3 TanWorld : TANGENT; //Tangent in world space (not used in Ass. 5) 
 };
 
 //--------------------------------------------------------------------------------------
@@ -172,6 +192,40 @@ float4 TerrainPS(PosTex input) : SV_Target0 {
 	return float4(matDiffuse * i, 1);
 }
 
+T3dVertexPSIn MeshVS(T3dVertexVSIn input){
+	T3dVertexPSIn output = (T3dVertexPSIn) 0;
+
+	output.Pos = mul(float4(input.Pos,1),g_WorldViewProjection);
+	output.Tex = input.Tex;
+	float4 worldpos = mul(float4(input.Pos,1), g_World);
+	output.PosWorld = worldpos.xyz/worldpos.w; 
+	output.NorWorld = normalize(mul(float4(input.Nor,0), g_WorldNormals).xyz);
+	output.TanWorld = normalize(mul(float4(input.Tan,0), g_WorldNormals).xyz);
+
+	return output;
+}
+
+
+float4 MeshPS(T3dVertexPSIn input) : SV_Target0 {
+	float4 matDiffuse, matSpecular, matGlow, colLight, colLightAmbient;
+	float3 n, r, v;
+	float cd = 0.5f;
+	float cs = 0.4f;
+	float ca = 0.15f;
+	float cg = 0.5f;
+	colLight = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	colLightAmbient = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	matDiffuse = g_Diffuse.Sample(samAnisotropic, input.Tex);
+	matSpecular = g_Specular.Sample(samAnisotropic, input.Tex);
+	matGlow = g_Glow.Sample(samAnisotropic, input.Tex);
+	n = normalize(input.NorWorld);
+	r = reflect(-(g_LightDir.xyz), n);
+	v = normalize(g_CameraPosWorld.xyz - input.PosWorld);
+
+	return (cd * matDiffuse * saturate(dot(n, g_LightDir.xyz)) * colLight + 
+	 cs * matSpecular * pow(saturate(dot(r, v)),10) * colLight +
+	 ca * matDiffuse * colLightAmbient + cg * matGlow);
+}
 
 //--------------------------------------------------------------------------------------
 // Techniques
@@ -185,6 +239,17 @@ technique11 Render
         SetPixelShader(CompileShader(ps_4_0, TerrainPS()));
         
         SetRasterizerState(rsCullNone);
+        SetDepthStencilState(EnableDepth, 0);
+        SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+    }
+	
+	pass P1_Mesh
+    {
+        SetVertexShader(CompileShader(vs_4_0, MeshVS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_4_0, MeshPS()));
+        
+        SetRasterizerState(rsCullBack);
         SetDepthStencilState(EnableDepth, 0);
         SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
     }

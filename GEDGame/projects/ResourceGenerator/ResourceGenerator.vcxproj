@@ -43,7 +43,11 @@ mkdir "$(OutDir)resources"
 "$(OutDir)TerrainGenerator.exe" -r 1024 -o_height "$(OutDir)resources\terrain_height.tiff" -o_color "$(IntDir)terrain_color.tiff" -o_normal "$(IntDir)terrain_normal.tiff"
 "$(OutDir)texconv.exe" -srgbi -f R8G8B8A8_UNORM_SRGB -o "$(OutDir)resources" "$(IntDir)terrain_color.tiff"
 "$(OutDir)texconv.exe" -f BC5_UNORM -o "$(OutDir)resources" "$(IntDir)terrain_normal.tiff"
-"$(OutDir)texconv.exe" -o "$(OutDir)resources" -srgbi -f R8G8B8A8_UNORM_SRGB "..\..\..\..\external\textures\debug_green.jpg"</NMakeBuildCommandLine>
+"$(OutDir)texconv.exe" -o "$(OutDir)resources" -srgbi -f R8G8B8A8_UNORM_SRGB "..\..\..\..\external\textures\debug_green.jpg"
+"$(SolutionDir)..\..\external\Tools\bin\obj2t3d.exe" -i "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_o_low.obj" -o "$(OutDir)resources\cockpit_o_low.t3d" –y
+"$(OutDir)texconv" -o "$(OutDir)resources" -srgbi -f BC1_UNORM_SRGB "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_m_diffuse.png"
+"$(OutDir)texconv" -o "$(OutDir)resources" -srgbi -f BC1_UNORM_SRGB "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_m_specular.png"
+"$(OutDir)texconv" -o "$(OutDir)resources" -srgbi -f BC1_UNORM_SRGB "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_m_glow.png"</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>echo "Deleting old resources..."
 del "$(IntDir)*"
 del "$(OutDir)resources\*</NMakeCleanCommandLine>
@@ -56,7 +60,11 @@ mkdir "$(OutDir)resources"
 "$(OutDir)TerrainGenerator.exe" -r 1024 -o_height "$(OutDir)resources\terrain_height.tiff" -o_color "$(IntDir)terrain_color.tiff" -o_normal "$(IntDir)terrain_normal.tiff"
 "$(OutDir)texconv.exe" -srgbi -f R8G8B8A8_UNORM_SRGB -o "$(OutDir)resources" "$(IntDir)terrain_color.tiff"
 "$(OutDir)texconv.exe" -f BC5_UNORM -o "$(OutDir)resources" "$(IntDir)terrain_normal.tiff"
-"$(OutDir)texconv.exe" -o "$(OutDir)resources" -srgbi -f R8G8B8A8_UNORM_SRGB "..\..\..\..\external\textures\debug_green.jpg"</NMakeBuildCommandLine>
+"$(OutDir)texconv.exe" -o "$(OutDir)resources" -srgbi -f R8G8B8A8_UNORM_SRGB "..\..\..\..\external\textures\debug_green.jpg"
+"$(SolutionDir)..\..\external\Tools\bin\obj2t3d.exe" -i "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_o_low.obj" -o "$(OutDir)resources\cockpit_o_low.t3d" –y
+"$(OutDir)texconv" -o "$(OutDir)resources" -srgbi -f BC1_UNORM_SRGB "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_m_diffuse.png"
+"$(OutDir)texconv" -o "$(OutDir)resources" -srgbi -f BC1_UNORM_SRGB "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_m_specular.png"
+"$(OutDir)texconv" -o "$(OutDir)resources" -srgbi -f BC1_UNORM_SRGB "$(SolutionDir)..\..\external\art\01-Cockpit\cockpit\final\cockpit_m_glow.png"</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>echo "Deleting old resources..."
 del "$(IntDir)*"
 del "$(OutDir)resources\*</NMakeCleanCommandLine>

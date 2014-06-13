@@ -10,7 +10,7 @@
 
 using namespace DirectX;
 
-// you can use this macro to access your height field
+// you can use this macro to access the height field
 #define IDX(X,Y,WIDTH) ((X) + (Y) * (WIDTH))
 
 int indices_size;
@@ -41,11 +41,8 @@ HRESULT Terrain::create(ID3D11Device* device)
 	// height field and the dimensions of the terrain specified by the ConfigParser
 
 	// load heightfield with ConfigParser
-	std::string heightPath = g_configParser.getTerrainHeightPath(); 
-	WCHAR path[MAX_PATH];
-	std::wstring w_heightPath(heightPath.begin(), heightPath.end());
-	V(DXUTFindDXSDKMediaFileCch(path, MAX_PATH, w_heightPath.c_str()));
-	GEDUtils::SimpleImage heightfield(path);
+
+	GEDUtils::SimpleImage heightfield(&g_configParser.getTerrainHeightPath()[0]);
 	// load widht/depth/height config parameters
 	float width = g_configParser.getTerrainWidth();
 	float height = g_configParser.getTerrainHeight();
@@ -59,7 +56,9 @@ HRESULT Terrain::create(ID3D11Device* device)
 				heightArr[IDX(x,y, res)] = heightfield.getPixel(x, y);
 		}
 	}
-	
+
+	// height used for camera in game.cpp
+	cameraHeight = heightArr[IDX(res/2, res/2, res)];
 
 	D3D11_SUBRESOURCE_DATA id;
 	id.pSysMem = &heightArr[0];
@@ -121,18 +120,10 @@ HRESULT Terrain::create(ID3D11Device* device)
 	V(device->CreateBuffer( &bd, &id, &indexBuffer ));
 	delete[] indices;
 	// load colorMap with ConfigParser in diffuseTextureSRV
-	std::string colorPath = g_configParser.getTerrainColorPath();
-	path[MAX_PATH];
-	std::wstring w_colorPath(colorPath.begin(), colorPath.end());
-	V(DXUTFindDXSDKMediaFileCch(path, MAX_PATH, w_colorPath.c_str()));
-	CreateDDSTextureFromFile(device, path, nullptr, &diffuseTextureSRV);
+	CreateDDSTextureFromFile(device, &g_configParser.getTerrainColorPath()[0], nullptr, &diffuseTextureSRV);
 
 	// Load normal texture (normal map)
-	std::string normalPath = g_configParser.getTerrainNormalPath();
-	path[MAX_PATH];
-	std::wstring w_normalPath(normalPath.begin(), normalPath.end());
-	V(DXUTFindDXSDKMediaFileCch(path, MAX_PATH, w_normalPath.c_str()));
-	CreateDDSTextureFromFile(device, path, nullptr, &normalTextureSRV);
+	CreateDDSTextureFromFile(device, &g_configParser.getTerrainNormalPath()[0], nullptr, &normalTextureSRV);
 
 
 	return hr;

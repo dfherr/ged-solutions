@@ -116,14 +116,14 @@ void HeightfieldGenerator::diamondStep(int x, int y, int s)
 	float avg = (arr[IDX(x-s, y-s, resIncr)] + arr[IDX(x+s, y-s, resIncr)] + arr[IDX(x-s, y+s, resIncr)] + arr[IDX(x+s, y+s, resIncr)]) / 4.0f;
 
 	// add a random value to the average in dependence of the roughness.
-	avg += (random(-1, 1) * roughness);
+	avg += (random(-1.0f, 1.0f) * roughness);
 
 	// don't let the average get to small or to big.
-	if(avg > 1.0)
+	if(avg > 1.0f)
 	{
 		avg = 1.0f;
 	} 
-	else if(avg < 0.0)
+	else if(avg < 0.0f)
 	{
 		avg = 0.0f;
 	}
@@ -197,11 +197,11 @@ void HeightfieldGenerator::squareStep(int x, int y, int s)
 	float avg_b = (corner_1 + corner_b2 + corner_b3 + corner_b4)  / 4.0f;
 	avg_b = avg_b + (random(-1, 1) * roughness);
 
-	if(avg_b > 1.0) 
+	if(avg_b > 1.0f) 
 	{
 		avg_b = 1.0f;
 	}
-	else if(avg_b < 0.0)
+	else if(avg_b < 0.0f)
 	{ 
 		avg_b = 0.0f;
 	}

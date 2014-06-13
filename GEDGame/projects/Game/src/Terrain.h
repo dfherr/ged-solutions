@@ -15,6 +15,10 @@ public:
 
 	void render(ID3D11DeviceContext* context, ID3DX11EffectPass* pass);
 
+
+	int res;
+	float cameraHeight;
+
 private:
 	Terrain(const Terrain&);
 	Terrain(const Terrain&&);
@@ -39,8 +43,7 @@ private:
 	// assignment 5 heightmap and normalmap recources
 	ID3D11Texture2D* normalTexture;
 	ID3D11ShaderResourceView* normalTextureSRV;
-	ID3D11Buffer* heightBuffer;
-	ID3D11ShaderResourceView* heightBufferSRV;
 
-	int res;
+	ID3D11ShaderResourceView* heightBufferSRV;
+	ID3D11Buffer* heightBuffer;
 };

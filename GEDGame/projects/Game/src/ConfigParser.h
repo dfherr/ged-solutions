@@ -9,9 +9,14 @@ public:
 
 	void load(std::string);
 	
-	std::string getTerrainHeightPath();
-	std::string getTerrainColorPath();
-	std::string getTerrainNormalPath();
+	std::wstring getTerrainHeightPath();
+	std::wstring getTerrainColorPath();
+	std::wstring getTerrainNormalPath();
+
+	std::wstring getCockpitMesh();
+	std::wstring getCockpitDiffuse();
+	std::wstring getCockpitSpecular();
+	std::wstring getCockpitGlow();
 
 	float getTerrainWidth();
 	float getTerrainDepth();
@@ -23,6 +28,11 @@ private:
 	std::string terrainHeightPath;
 	std::string terrainColorPath;
 	std::string terrainNormalPath;
+
+	std::string cockpitMesh;
+	std::string cockpitDiffuse;
+	std::string cockpitSpecular;
+	std::string cockpitGlow;
 
 	float terrainWidth; 
 	float terrainDepth; 

@@ -1,6 +1,8 @@
 #include "ConfigParser.h"
 #include <fstream>
 #include <iostream>
+#include "DXUT.h"
+#include "SDKmisc.h"
 
 ConfigParser::ConfigParser()
 {
@@ -36,16 +38,32 @@ void ConfigParser::load(std::string path)
 			}  else if (word.compare("TerrainWidth") == 0)
 			{
 				*fs >> word;
-				ConfigParser::terrainWidth = atof(word.c_str());
+				ConfigParser::terrainWidth = (float)atof(word.c_str());
 			} else if (word.compare("TerrainDepth") == 0)
 			{
 				*fs >> word;
-				ConfigParser::terrainDepth = atof(word.c_str());
+				ConfigParser::terrainDepth = (float)atof(word.c_str());
 			} else if (word.compare("TerrainHeight") == 0)
 			{
 				*fs >> word;
-				ConfigParser::terrainHeight = atof(word.c_str());
-			} else
+				ConfigParser::terrainHeight = (float)atof(word.c_str());
+			} else if(word.compare("Mesh") == 0){
+				*fs >> word;
+				if(word.compare("Cockpit") == 0){
+					*fs >> word;
+					ConfigParser::cockpitMesh = word;
+					*fs >> word;
+					ConfigParser::cockpitDiffuse = word;
+					*fs >> word;
+					ConfigParser::cockpitSpecular = word;
+					*fs >> word;
+					ConfigParser::cockpitGlow = word;
+				}else{
+					// the mesh identifier isn't correct. throw a error message and go to the next one.
+					std::cout << "ERROR: mesh identifier \"" << word << "\" unknown." << std::endl;
+				}
+
+			}else
 			{
 				// the word isn't correct. throw a error message and go to the next one.
 				std::cout << "error: \"" << word << "\"" << std::endl;
@@ -62,33 +80,59 @@ void ConfigParser::load(std::string path)
 	delete fs;
 }
 
+std::wstring findMediaFilePath(std::string file){
+	WCHAR path[MAX_PATH];
+	std::wstring wPath(file.begin(), file.end());
+	DXUTFindDXSDKMediaFileCch(path, MAX_PATH, wPath.c_str());
+	return std::wstring(path);
+}
+
+
+std::wstring ConfigParser::getTerrainHeightPath()
+{
+	return findMediaFilePath(this->terrainHeightPath);
+}
+
+std::wstring ConfigParser::getTerrainColorPath()
+{
+	return findMediaFilePath(this->terrainColorPath);
+}
+
+std::wstring ConfigParser::getTerrainNormalPath()
+{
+	return findMediaFilePath(this->terrainNormalPath);
+}
+
+std::wstring ConfigParser::getCockpitMesh()
+{
 	
-	std::string ConfigParser::getTerrainHeightPath()
-	{
-		return this->terrainHeightPath;
-	}
+	return findMediaFilePath(this->cockpitMesh);
+}
+std::wstring ConfigParser::getCockpitDiffuse()
+{
+	return findMediaFilePath(this->cockpitDiffuse);
+}
+std::wstring ConfigParser::getCockpitSpecular()
+{
+	return findMediaFilePath(this->cockpitSpecular);
+}
+std::wstring ConfigParser::getCockpitGlow()
+{
+	return findMediaFilePath(this->cockpitGlow);
+}
 
-	std::string ConfigParser::getTerrainColorPath()
-	{
-		return this->terrainColorPath;
-	}
+float ConfigParser::getTerrainWidth()
+{
+	return this->terrainWidth;
+}
 
-	std::string ConfigParser::getTerrainNormalPath()
-	{
-		return this->terrainNormalPath;
-	}
+float ConfigParser::getTerrainDepth()
+{
+	return this->terrainDepth;
+}
 
-	float ConfigParser::getTerrainWidth()
-	{
-		return this->terrainWidth;
-	}
+float ConfigParser::getTerrainHeight()
+{
+	return this->terrainHeight;
+}
 
-	float ConfigParser::getTerrainDepth()
-	{
-		return this->terrainDepth;
-	}
-
-	float ConfigParser::getTerrainHeight()
-	{
-		return this->terrainHeight;
-	}

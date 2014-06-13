@@ -33,7 +33,12 @@ struct GameEffect
 	ID3DX11EffectShaderResourceVariable*	heightmap; // shader variable for heightmap, see assignment 5
 	ID3DX11EffectShaderResourceVariable*	normalmap; // shader variable for normalmap, see assignment 5
 	ID3DX11EffectScalarVariable*			resolution; // shader variable for resolution; see assignment 5
-	ID3DX11EffectMatrixVariable*			worldNormalMatrix; // shader variable for World Normal Matrix; see assignment 5
+	ID3DX11EffectMatrixVariable*			worldNormalsEV; // shader variable for World Normal Matrix; see assignment 5
+	//Assignment 6 Mesh variables
+	ID3DX11EffectShaderResourceVariable*	specularEV; 
+	ID3DX11EffectShaderResourceVariable*	glowEV; 
+	ID3DX11EffectVectorVariable*			cameraPosWorldEV;
+	ID3DX11EffectPass*						meshPass1;
 
 	GameEffect() { ZeroMemory(this, sizeof(*this)); }		// WARNING: This will set ALL members to 0!
 
@@ -58,8 +63,9 @@ struct GameEffect
 		// Obtain the effect technique
 		SAFE_GET_TECHNIQUE(effect, "Render", technique);
 
-		// Obtain the effect pass
+		// Obtain the effect passes
 		SAFE_GET_PASS(technique, "P0", pass0);
+		SAFE_GET_PASS(technique, "P1_Mesh", meshPass1); //assignment 6
 
 		// Obtain the effect variables
 		SAFE_GET_RESOURCE(effect, "g_Diffuse", diffuseEV);
@@ -70,8 +76,15 @@ struct GameEffect
 		// Bind assignment 5 shader variables
 		SAFE_GET_RESOURCE(effect, "g_HeightMap", heightmap);
 		SAFE_GET_RESOURCE(effect, "g_NormalMap", normalmap);
-		SAFE_GET_MATRIX(effect, "g_WorldNormals", worldNormalMatrix);
+		SAFE_GET_MATRIX(effect, "g_WorldNormals", worldNormalsEV);
 		SAFE_GET_SCALAR(effect, "g_TerrainRes", resolution);
+
+		// Bind assignment 6 shader variables
+		SAFE_GET_RESOURCE(effect, "g_Specular", specularEV);
+		SAFE_GET_RESOURCE(effect, "g_Glow", glowEV);
+		SAFE_GET_VECTOR(effect, "g_CameraPosWorld", cameraPosWorldEV);
+		
+
 
 		return S_OK;
 	}

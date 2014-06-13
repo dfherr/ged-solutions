@@ -48,9 +48,9 @@ void NormalCalculator::calculate(void)
 
 			//  map to [0,1] and save
 			int arrPos = IDX(x,y,resolution);
-			normalVec[arrPos].x = x_dv/2.0 + 0.5f;
-			normalVec[arrPos].y = y_dv/2.0 + 0.5f;
-			normalVec[arrPos].z = z/2.0 + 0.5f;	
+			normalVec[arrPos].x = (float)(x_dv/2.0 + 0.5);
+			normalVec[arrPos].y = (float)(y_dv/2.0 + 0.5);
+			normalVec[arrPos].z = (float)(z/2.0 + 0.5);	
 
 		}
 	}

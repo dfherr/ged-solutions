@@ -17,6 +17,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="src\ConfigParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -29,6 +32,12 @@
     <ClInclude Include="src\Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\T3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Game.cpp">
@@ -38,6 +47,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\ConfigParser.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\T3d.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

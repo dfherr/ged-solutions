@@ -25,12 +25,15 @@
 #include "Terrain.h"
 #include "GameEffect.h"
 #include "ConfigParser.h"
+#include "Mesh.h"
 
 #include "debug.h"
 
 
 // Help macros
 #define DEG2RAD( a ) ( (a) * XM_PI / 180.f )
+// you can use this macro to access the height field
+#define IDX(X,Y,WIDTH) ((X) + (Y) * (WIDTH))
 
 using namespace std;
 using namespace DirectX;
@@ -58,7 +61,8 @@ CDXUTDialog                             g_hud;                  // dialog for st
 CDXUTDialog                             g_sampleUI;             // dialog for sample specific controls
 
 
-bool                                    g_terrainSpinning = true;
+bool                                    g_terrainSpinning = false;
+bool                                    g_cameraMovement = false;
 XMMATRIX                                g_terrainWorld; // object- to world-space transformation
 
 
@@ -68,6 +72,7 @@ Terrain									g_terrain;
 
 GameEffect								g_gameEffect; // CPU part of Shader
 ConfigParser							g_configParser; // global config parser
+Mesh*									g_cockpitMesh = nullptr; // added for assignment 06
 
 
 //--------------------------------------------------------------------------------------
@@ -77,6 +82,7 @@ ConfigParser							g_configParser; // global config parser
 #define IDC_TOGGLEREF           2
 #define IDC_CHANGEDEVICE        3
 #define IDC_TOGGLESPIN          4
+#define IDC_TOGGLECAMERA        5
 #define IDC_RELOAD_SHADERS		101
 
 //--------------------------------------------------------------------------------------
@@ -101,6 +107,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
                                  float fElapsedTime, void* pUserContext );
 
 void InitApp();
+void DeinitApp();
 void RenderText();
 
 void ReleaseShader();
@@ -161,6 +168,8 @@ int _tmain(int argc, _TCHAR* argv[])
     DXUTCreateDevice( D3D_FEATURE_LEVEL_10_0, true, 1280, 720 );
 
     DXUTMainLoop(); // Enter into the DXUT render loop
+	DXUTShutdown(); // added for assignment 06, ensures OnD3D11DestroyDevice() is called before DeinitApp
+	DeinitApp(); // added for assignment 06
 
     return DXUTGetExitCode();
 }
@@ -185,6 +194,8 @@ void InitApp()
 
     // Intialize the user interface
 
+	g_cockpitMesh = new Mesh(g_configParser.getCockpitMesh(),g_configParser.getCockpitDiffuse(),g_configParser.getCockpitSpecular(),g_configParser.getCockpitGlow());
+
     g_settingsDlg.Init( &g_dialogResourceManager );
     g_hud.Init( &g_dialogResourceManager );
     g_sampleUI.Init( &g_dialogResourceManager );
@@ -201,6 +212,15 @@ void InitApp()
     g_sampleUI.SetCallback( OnGUIEvent ); iY = 10;
     iY += 24;
     g_sampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Toggle Spinning", 0, iY += 24, 125, 22, g_terrainSpinning );   
+	g_sampleUI.AddCheckBox( IDC_TOGGLECAMERA, L"Toggle Camera", 0, iY += 24, 125, 22, g_cameraMovement );   
+}
+
+//--------------------------------------------------------------------------------------
+// Deinitialize the app 
+//--------------------------------------------------------------------------------------
+void DeinitApp()
+{
+	SAFE_DELETE(g_cockpitMesh);
 }
 
 //--------------------------------------------------------------------------------------
@@ -269,13 +289,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice,
     g_txtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_dialogResourceManager, 15 );
 
     V_RETURN( ReloadShader(pd3dDevice) );
-    
-    
-    // Initialize the camera
-	XMVECTOR vEye = XMVectorSet(0.0f, 400.0f, -500.0f, 0.0f);   // Camera eye is here
-    XMVECTOR vAt = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);               // ... facing at this position
-    g_camera.SetViewParams(vEye, vAt); // http://msdn.microsoft.com/en-us/library/windows/desktop/bb206342%28v=vs.85%29.aspx
-	g_camera.SetScalers(g_cameraRotateScaler, g_cameraMoveScaler);
 
 	// Define the input layout
 	const D3D11_INPUT_ELEMENT_DESC layout[] = // http://msdn.microsoft.com/en-us/library/bb205117%28v=vs.85%29.aspx
@@ -289,9 +302,20 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice,
 	// Create the input layout
     D3DX11_PASS_DESC pd;
 	V_RETURN(g_gameEffect.pass0->GetDesc(&pd));
-
+	
 	// Create the terrain
 	V_RETURN(g_terrain.create(pd3dDevice));
+
+    //init cockpit mesh
+	g_cockpitMesh->create(pd3dDevice);
+	// Create Mesh input layout
+	Mesh::createInputLayout(pd3dDevice, g_gameEffect.meshPass1);
+
+	// Initialize the camera
+	XMVECTOR vEye = XMVectorSet(0.0f, g_terrain.cameraHeight * g_configParser.getTerrainHeight() + g_configParser.getTerrainHeight()*0.1f, 0.0f, 0.0f);   // Camera eye is here
+    XMVECTOR vAt = XMVectorSet(1.0f, g_terrain.cameraHeight * g_configParser.getTerrainHeight() + g_configParser.getTerrainHeight()*0.1f - 0.2f, 0.0f, 1.0f);  // ... facing at this position
+    g_camera.SetViewParams(vEye, vAt); // http://msdn.microsoft.com/en-us/library/windows/desktop/bb206342%28v=vs.85%29.aspx
+	g_camera.SetScalers(g_cameraRotateScaler, g_cameraMoveScaler);
 
     return S_OK;
 }
@@ -308,6 +332,9 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     g_settingsDlg.OnD3D11DestroyDevice();
     DXUTGetGlobalResourceCache().OnDestroyDevice();
 
+	//destroy cockpit
+	g_cockpitMesh->destroy();
+	Mesh::destroyInputLayout();
 	// Destroy the terrain
 	g_terrain.destroy();
 
@@ -344,7 +371,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
     g_cameraParams.farPlane = 5000.f;
 
     g_camera.SetProjParams(g_cameraParams.fovy, g_cameraParams.aspect, g_cameraParams.nearPlane, g_cameraParams.farPlane);
-	g_camera.SetEnablePositionMovement(true);
+	g_camera.SetEnablePositionMovement(g_cameraMovement);
 	g_camera.SetRotateButtons(true, false, false);
 	g_camera.SetScalers( g_cameraRotateScaler, g_cameraMoveScaler );
 	g_camera.SetDrag( true );
@@ -437,6 +464,7 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 	UNREFERENCED_PARAMETER(bKeyDown);
 	UNREFERENCED_PARAMETER(bAltDown);
 	UNREFERENCED_PARAMETER(pUserContext);
+
 }
 
 //--------------------------------------------------------------------------------------
@@ -459,6 +487,10 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
         case IDC_TOGGLESPIN:
             g_terrainSpinning = g_sampleUI.GetCheckBox( IDC_TOGGLESPIN )->GetChecked();
             break;
+		case IDC_TOGGLECAMERA:
+			 g_cameraMovement = g_sampleUI.GetCheckBox( IDC_TOGGLECAMERA )->GetChecked();
+			 g_camera.SetEnablePositionMovement(g_cameraMovement);
+			break;
 		case IDC_RELOAD_SHADERS:
 			ReloadShader(DXUTGetD3D11Device ());
 			break;
@@ -541,15 +573,45 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     XMMATRIX const view = g_camera.GetViewMatrix(); // http://msdn.microsoft.com/en-us/library/windows/desktop/bb206342%28v=vs.85%29.aspx
     XMMATRIX const proj = g_camera.GetProjMatrix(); // http://msdn.microsoft.com/en-us/library/windows/desktop/bb147302%28v=vs.85%29.aspx
     XMMATRIX worldViewProj = g_terrainWorld * view * proj;
-	XMMATRIX worldNormalProj = XMMatrixTranspose(XMMatrixInverse(nullptr, g_terrainWorld));
+	XMMATRIX worldNormalsMatrix = XMMatrixInverse(nullptr, g_terrainWorld);
+
 	V(g_gameEffect.worldEV->SetMatrix( ( float* )&g_terrainWorld ));
 	V(g_gameEffect.worldViewProjectionEV->SetMatrix( ( float* )&worldViewProj ));
+	V(g_gameEffect.worldNormalsEV->SetMatrix( (float*)&worldNormalsMatrix ));
 	V(g_gameEffect.lightDirEV->SetFloatVector( ( float* )&g_lightDir ));
-	V(g_gameEffect.worldNormalMatrix->SetMatrix( (float*)&worldNormalProj ));
+
     // Set input layout
 	pd3dImmediateContext->IASetInputLayout( nullptr ); // changed for assignment 5, was the vertexlayout before
 	g_terrain.render(pd3dImmediateContext, g_gameEffect.pass0);
-    
+
+
+	//Create transformation matrices
+	XMMATRIX mTrans, mScale, mRot;
+	mRot = XMMatrixRotationY(DEG2RAD(180.0f)); //set angleInRadians yourself
+	mTrans = XMMatrixTranslation(0, -16, 42);
+	mScale = XMMatrixScaling(0.05f, 0.05f, 0.05f);
+	
+	//Object to world space for cockpit (for lighting):
+	// rotation first, then translation and then scaling, then transform
+	// to camera position / rotation
+	XMMATRIX mWorld = mRot * mTrans * mScale * g_camera.GetWorldMatrix();
+	
+	//Object to clip space for cockpit (for rendering):
+	XMMATRIX mWorldViewProj = mWorld * g_camera.GetViewMatrix() * g_camera.GetProjMatrix();
+	// Note: mRot * mTrans * mScale * (*g_Camera.GetProjMatrix()) yields the
+	// same result since GetWorldMatrix() is the inverse of GetViewMatrix()
+	//initialize cockpit transformation matrices
+
+	XMMATRIX mWorldNormals = XMMatrixInverse(nullptr, mWorld);
+	XMVECTOR cameraPosWorld = g_camera.GetEyePt();
+
+	V(g_gameEffect.worldEV->SetMatrix( ( float* )&mWorld ));
+	V(g_gameEffect.worldViewProjectionEV->SetMatrix( ( float* )&mWorldViewProj ));
+	V(g_gameEffect.worldNormalsEV->SetMatrix( (float*)&mWorldNormals ));
+	V(g_gameEffect.cameraPosWorldEV->SetFloatVector((float*)&cameraPosWorld));
+
+    g_cockpitMesh->render(pd3dImmediateContext, g_gameEffect.meshPass1, g_gameEffect.diffuseEV, g_gameEffect.specularEV, g_gameEffect.glowEV);
+
     DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     V(g_hud.OnRender( fElapsedTime ));
     V(g_sampleUI.OnRender( fElapsedTime ));
